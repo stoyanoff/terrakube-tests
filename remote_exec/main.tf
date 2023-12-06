@@ -1,5 +1,13 @@
 variable "vm_ip" {}
 variable "username" {}
+variable "master_ip" {}
+variable "worker1_ip" {}
+variable "worker2_ip" {}
+variable "token" {}
+variable "tlssan" {}
+# variable "nodetoken" {
+#     type = string
+# }
 # variable "timezone" {}
 # variable "new_hostname" {}
 variable "private_key_name" {
@@ -25,9 +33,26 @@ resource "null_resource" "remote_vm" {
     }
 
 provisioner "remote-exec" {
-    # INSTALL K3S
+    # INSTALL K3S MASTER
     inline=[
-"curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=v1.27.7+k3s2 INSTALL_K3S_EXEC='--disable local-storage --disable servicelb --disable traefik --token=q1w2e3r4100@ --tls-san=ubuntu-test-stoyan.finonex.com' sh -"
+"curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=v1.27.7+k3s2 INSTALL_K3S_EXEC='--disable local-storage --disable servicelb --disable traefik --token=${var.token} --tls-san=${var.tlssan}' sh -s - --docker",
+#"curl -sfL http://get.k3s.io | K3S_URL=https://${var.master_ip}:6443 K3S_TOKEN_FILE=/var/lib/rancher/k3s/server/node-token sh -s - --docker"
     ]
     }
+
+# data "external" "remote_file" {
+#   program = ["bash", "${path.module}/get_remote_value.sh"]
+# }
+
+# variable "remote_value" {
+#   default = data.external.remote_file.result
+# }
+
+# provisioner "remote-exec" {
+#     # INSTALL K3S
+#     inline=[
+# "curl -sfL http://get.k3s.io | K3S_URL=https://${var.master_ip}:6443 K3S_TOKEN_FILE=/var/lib/rancher/k3s/server/node-token sh -s - --docker"
+#     ]
+# }
+
 }
